@@ -18,47 +18,248 @@ Include the neural network model diagram.
 
 ## DESIGN STEPS
 
-### STEP 1:
-Write your own steps
+1. Import Libraries:
 
-### STEP 2:
+Import necessary libraries like pandas, numpy, etc.
 
-### STEP 3:
+2. Load and Explore Data:
 
+Load the dataset using appropriate functions.
+Explore the data to understand its structure, content, and missing values.
+
+3. Preprocess and Clean Data:
+
+Handle missing values (e.g., imputation, deletion).
+Deal with outliers and inconsistencies.
+Perform feature scaling or normalization if necessary.
+
+4. Feature Engineering:
+
+Encode categorical features (e.g., one-hot encoding, label encoding).
+Create new features from existing ones if relevant.
+
+5. Exploratory Data Analysis (EDA):
+
+Visualize data distribution and relationships using various plots (e.g., histograms, scatter plots).
+Gain insights into data patterns and trends.
+
+6. Split Data into Training and Testing Sets:
+
+Split the data into training and testing sets for model development and evaluation.
+
+7. Build Deep Learning Model:
+
+Design the model architecture with appropriate layers (e.g., dense, convolutional) and activation functions.
+Compile the model with an optimizer and loss function.
+
+8. Train the Model:
+
+Train the model on the training set for a specified number of epochs.
+Monitor training progress and adjust hyperparameters (e.g., learning rate, batch size) if needed.
+
+9. Evaluate Model Performance:
+
+Evaluate the model's performance on the testing set using various metrics (e.g., accuracy, precision, recall).
+Analyze the results to assess the model's effectiveness and identify potential areas for improvement.
+
+10. Visualize Training and Validation Performance:
+
+Plot learning curves to visualize the model's training and validation loss and accuracy over time.
+Gain insights into model convergence and potential overfitting/underfitting issues.
+
+11. Save the Model:
+
+Save the trained model using serialization techniques like pickle for future use or deployment.
+
+12. Make Predictions:
+
+Use the saved model to predict on new unseen data and generate predictions.
+Interpret the predicted results and draw conclusions.
 
 ## PROGRAM
 
-### Name: 
-### Register Number:
+### Name: Aldrin Lijo J E
+### Register Number: 212222240007
 
-```python
+```
 import pandas as pd
+from sklearn.model_selection import train_test_split
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.models import load_model
+import pickle
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Dropout
+from tensorflow.keras.layers import BatchNormalization
+import tensorflow as tf
+import seaborn as sns
+from tensorflow.keras.callbacks import EarlyStopping
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import OrdinalEncoder
+from sklearn.metrics import classification_report,confusion_matrix
+import numpy as np
+import matplotlib.pylab as plt
+
+df = pd.read_csv('/customers.csv')
+df.head()
+df.columns
+df.dtypes
+df.shape
+df.isnull().sum()
+df_cleaned=df.dropna(axis=0)
+df_cleaned.isnull().sum()
+df_cleaned.shape
+df_cleaned.dtypes
+df_cleaned['Gender'].unique()
+df_cleaned['Ever_Married'].unique()
+df_cleaned['Graduated'].unique()
+df_cleaned['Family_Size'].unique()
+df_cleaned['Var_1'].unique()
+df_cleaned['Spending_Score'].unique()
+df_cleaned['Profession'].unique()
+df_cleaned['Segmentation'].unique()
+
+from sklearn.preprocessing import OrdinalEncoder
+from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import OneHotEncoder
+
+categories_list=[['Male','Female'],
+                 ['No','Yes'],
+                 ['No','Yes'],
+                 ['Healthcare', 'Engineer', 'Lawyer', 'Artist', 'Doctor',
+                 'Homemaker', 'Entertainment', 'Marketing', 'Executive'],
+                 ['Low','Average','High']
+                 ]
+enc = OrdinalEncoder(categories = categories_list)
+
+cust_1=df_cleaned.copy()
+cust_1[['Gender','Ever_Married','Graduated','Profession','Spending_Score']]=enc.fit_transform(cust_1[['Gender','Ever_Married','Graduated','Profession','Spending_Score']])
+
+cust_1.dtypes
 
 
+le = LabelEncoder()
+     
+
+cust_1['Segmentation'] = le.fit_transform(cust_1['Segmentation'])
+     
+
+cust_1.dtypes
+     
+
+cust_1 = cust_1.drop('ID',axis=1)
+cust_1 = cust_1.drop('Var_1',axis=1)
+     
+
+cust_1.dtypes
+     
+
+# Calculate the correlation matrix
+corr = cust_1.corr()
+
+# Plot the heatmap
+sns.heatmap(corr, 
+        xticklabels=corr.columns,
+        yticklabels=corr.columns,
+        cmap="BuPu",
+        annot= True)
+
+sns.pairplot(cust_1)
+
+cust_1.describe()
+cust_1['Segmentation'].unique()
+
+X=cust_1[['Gender','Ever_Married','Age','Graduated','Profession','Work_Experience','Spending_Score','Family_Size']].values
+
+y1 = cust_1[['Segmentation']].values
+one_hot_enc = OneHotEncoder()
+one_hot_enc.fit(y1)
+y1.shape
+y = one_hot_enc.transform(y1).toarray() 
+y.shape    
+y1[0]
+y[0]
+X.shape
+X_train,X_test,y_train,y_test=train_test_split(X,y,
+                                               test_size=0.33,
+                                               random_state=50)
+X_train[0]
+X_train.shape
+scaler_age = MinMaxScaler()
+scaler_age.fit(X_train[:,2].reshape(-1,1))
+X_train_scaled = np.copy(X_train)
+X_test_scaled = np.copy(X_test)
+
+# To scale the Age column
+X_train_scaled[:,2] = scaler_age.transform(X_train[:,2].reshape(-1,1)).reshape(-1)
+X_test_scaled[:,2] = scaler_age.transform(X_test[:,2].reshape(-1,1)).reshape(-1)
 
 
+# Creating the model
+ai_brain = Sequential([
+  Dense(4,input_shape=(8,)),
+  Dense(8,activation='relu'),
+  Dense(8,activation='relu'),
+  Dense(4,activation='softmax'),
+])
+
+ai_brain.compile(optimizer='adam',
+                 loss='categorical_crossentropy',
+                 metrics=['accuracy'])
+early_stop = EarlyStopping(monitor='val_loss', patience=2)
+
+
+ai_brain.fit(x=X_train_scaled,y=y_train,
+             epochs=2000,batch_size=256,
+             validation_data=(X_test_scaled,y_test),
+             )
+metrics = pd.DataFrame(ai_brain.history.history)
+
+metrics.head()
+metrics[['loss','val_loss']].plot()
+x_test_predictions = np.argmax(ai_brain.predict(X_test_scaled), axis=1)
+x_test_predictions.shape
+y_test_truevalue = np.argmax(y_test,axis=1)
+y_test_truevalue.shape
+print(confusion_matrix(y_test_truevalue,x_test_predictions))
+print(classification_report(y_test_truevalue,x_test_predictions))
+     
+# Saving the Model
+ai_brain.save('customer_classification_model.h5')
+
+# Saving the data
+with open('customer_data.pickle', 'wb') as fh:
+   pickle.dump([X_train_scaled,y_train,X_test_scaled,y_test,cust_1,df_cleaned,scaler_age,enc,one_hot_enc,le], fh)
+
+ai_brain = load_model('customer_classification_model.h5')
+
+# Loading the data
+with open('customer_data.pickle', 'rb') as fh:
+   [X_train_scaled,y_train,X_test_scaled,y_test,customers_1,customer_df_cleaned,scaler_age,enc,one_hot_enc,le]=pickle.load(fh)
+     
+#Prediction for a single input
+x_single_prediction = np.argmax(ai_brain.predict(X_test_scaled[1:2,:]), axis=1)
+print(x_single_prediction)
+print(le.inverse_transform(x_single_prediction))
 ```
 
 ## Dataset Information
-
-Include screenshot of the dataset
+![image](https://github.com/aldrinlijo04/nn-classification/assets/118544279/6517065f-9740-47a8-9d5e-e096fc4ff372)
 
 ## OUTPUT
 ### Training Loss, Validation Loss Vs Iteration Plot
-Include your plot here
+![download](https://github.com/aldrinlijo04/nn-classification/assets/118544279/1ccebc33-9dfe-46fc-b50c-4a47eae16a89)
 
 ### Classification Report
-
-Include Classification Report here
+![image](https://github.com/aldrinlijo04/nn-classification/assets/118544279/b7d9734f-6759-4705-a909-168d3b110867)
 
 ### Confusion Matrix
-
-Include confusion matrix here
-
+![image](https://github.com/aldrinlijo04/nn-classification/assets/118544279/36afc199-5bc2-46f3-8edc-3c1ede815caa)
 
 ### New Sample Data Prediction
+![image](https://github.com/aldrinlijo04/nn-classification/assets/118544279/306da96f-aab7-4b75-b92e-0dd213923452)
 
-Include your sample input and output here
 
 ## RESULT
-Include your result here
+A neural network classification model is developed for the given dataset.
