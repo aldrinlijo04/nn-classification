@@ -1,4 +1,4 @@
-# Developing a Neural Network Classification Model
+alex# Developing a Neural Network Classification Model
 
 ## AIM
 
@@ -13,8 +13,7 @@ In their existing market, the sales team has classified all customers into 4 seg
 You are required to help the manager to predict the right group of the new customers.
 
 ## Neural Network Model
-
-![image](https://github.com/aldrinlijo04/nn-classification/assets/118544279/ab5f6c4d-f6c2-47b6-a728-bbfc38b25e13)
+![image](https://github.com/aldrinlijo04/nn-classification/assets/118544279/ebcd7383-82d5-4884-948c-9b9c8916dfad)
 
 ## DESIGN STEPS
 
